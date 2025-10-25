@@ -6,9 +6,14 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
-
+import { clerkMiddleware, rootAuthLoader } from "@clerk/react-router/server";
 import type { Route } from "./+types/root";
 import "./app.css";
+import { ClerkLoaded, ClerkLoading, ClerkProvider } from "@clerk/react-router";
+
+export const middleware: Route.MiddlewareFunction[] = [clerkMiddleware()];
+
+export const loader = (args: Route.LoaderArgs) => rootAuthLoader(args);
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -20,6 +25,14 @@ export const links: Route.LinksFunction = () => [
   {
     rel: "stylesheet",
     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+  },
+  {
+    rel: "icon",
+    href: "https://www.befreenetworks.com/logo.png",
+  },
+  {
+    rel: "apple-touch-icon",
+    href: "https://www.befreenetworks.com/logo.png",
   },
 ];
 
@@ -41,8 +54,23 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
-  return <Outlet />;
+export default function App({ loaderData }: Route.ComponentProps) {
+  return (
+    <ClerkProvider loaderData={loaderData}>
+      <ClerkLoading>
+        <div className="flex items-center justify-center gap-4 h-screen w-screen">
+          <img
+            src="https://www.befreenetworks.com/logo.png"
+            className="size-5! animate-spin rounded-full"
+          />
+          <span className="text-base font-semibold">Loading...</span>
+        </div>
+      </ClerkLoading>
+      <ClerkLoaded>
+        <Outlet />
+      </ClerkLoaded>
+    </ClerkProvider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
