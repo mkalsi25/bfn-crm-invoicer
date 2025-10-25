@@ -1,9 +1,12 @@
+import { SignedIn, UserButton } from "@clerk/react-router";
 import { Separator } from "~/components/ui/separator";
-import { SidebarTrigger } from "~/components/ui/sidebar";
+import { SidebarTrigger, useSidebar } from "~/components/ui/sidebar";
+import { cn } from "~/lib/utils";
 
 export function SiteHeader({ title = "Documents" }: { title: string }) {
+  const { open } = useSidebar();
   return (
-    <header className="flex h-(--header-height) z-50 sticky top-0 bg-white shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+    <header className="flex overflow-clip h-(--header-height) z-50 sticky top-0 bg-white shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
         <SidebarTrigger className="-ml-1" />
         <Separator
@@ -11,7 +14,18 @@ export function SiteHeader({ title = "Documents" }: { title: string }) {
           className="mx-2 data-[orientation=vertical]:h-4"
         />
         <h1 className="text-base font-medium">{title}</h1>
-        <div className="ml-auto flex items-center gap-2"></div>
+        <div className="ml-auto flex items-center gap-2 relative">
+          <div
+            className={cn(
+              open ? "translate-x-24 opacity-0" : "translate-x-0 opacity-100",
+              "transition ease-in-out duration-150 absolute right-0"
+            )}
+          >
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+          </div>
+        </div>
       </div>
     </header>
   );

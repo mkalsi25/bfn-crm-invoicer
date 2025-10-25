@@ -151,7 +151,7 @@
 }
 
 .cl-headerTitle {
-  @apply font-serif text-xl tracking-wide;
+  @apply text-xl;
 }
 
 .cl-headerSubtitle {
@@ -181,4 +181,23 @@
 .cl-userButtonAvatarBox,
 .cl-userButtonAvatarBox > img {
   @apply size-8;
+}
+
+.cl-userButtonAvatarBox,
+.cl-userButtonTrigger,
+.cl-userButtonTrigger.cl-open,
+.cl-userPreviewAvatarBox {
+  @apply size-7! rounded-md!;
+}
+
+.cl-userPreviewMainIdentifier {
+  @apply text-base! font-semibold!;
+}
+
+.cl-userPreviewSecondaryIdentifier {
+  @apply text-xs! text-muted-foreground!;
+}
+
+.cl-userButtonPopoverActions {
+  @apply *:px-2 *:py-3;
 }
