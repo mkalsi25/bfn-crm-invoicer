@@ -20,8 +20,14 @@ export async function loader(args: Route.LoaderArgs) {
   const cf = args.context.get(cf_ctx);
   const token = cf?.cloudflare.env.UCRM_SECRET_TOKEN;
   const currentDate = new Date();
-  const dateBeforeSixMonth = addMonths(currentDate, -3);
-  return getDataForDashboard({ dateBeforeSixMonth, token: token! });
+  const dateBeforeSixMonth = addMonths(currentDate, -6);
+  return getDataForDashboard({
+    date: {
+      from: dateBeforeSixMonth,
+      to: currentDate,
+    },
+    token: token!,
+  });
 }
 
 export function meta({}: Route.MetaArgs) {
@@ -135,7 +141,7 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
       {
         title: "Total Revenue",
         value: totalRevenue,
-        description: "Last three month paid invoices amount",
+        description: "Last six month paid invoices amount",
         // href: "/dashboard/invoices",
         format: {
           locales: "en-ES",
@@ -148,7 +154,7 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
       {
         title: "Pending Amount",
         value: pendingAmount,
-        description: "Last three month pending invoices amount",
+        description: "Last six month pending invoices amount",
         // href: "/dashboard/invoices",
         format: {
           locales: "en-ES",

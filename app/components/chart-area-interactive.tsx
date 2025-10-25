@@ -18,7 +18,7 @@ const chartConfig = {
   },
   amountPaid: {
     label: "Paid",
-    color: "var(--color-primary)",
+    color: "var(--color-green-600)",
   },
   amountPending: {
     label: "Pending",
@@ -50,12 +50,12 @@ export function ChartAreaInteractive({
               <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="var(--color-primary)"
+                  stopColor="var(--color-green-600)"
                   stopOpacity={1.0}
                 />
                 <stop
                   offset="95%"
-                  stopColor="var(--color-primary)"
+                  stopColor="var(--color-green-600)"
                   stopOpacity={0.1}
                 />
               </linearGradient>
@@ -102,18 +102,18 @@ export function ChartAreaInteractive({
               }
             />
             <Area
+              dataKey="amountPaid"
+              type="natural"
+              fill="url(#fillDesktop)"
+              stroke="var(--color-green-600)"
+              stackId="a"
+            />
+            <Area
               dataKey="amountPending"
               type="natural"
               fill="url(#fillMobile)"
               stroke="var(--color-red-500)"
-              stackId="a"
-            />
-            <Area
-              dataKey="amountPaid"
-              type="natural"
-              fill="url(#fillDesktop)"
-              stroke="var(--color-primary)"
-              stackId="a"
+              stackId="b"
             />
           </AreaChart>
         </ChartContainer>

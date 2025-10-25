@@ -46,10 +46,13 @@ export const getAllServices = async (
 };
 
 export const getDataForDashboard = async ({
-  dateBeforeSixMonth,
+  date: { from, to },
   token,
 }: {
-  dateBeforeSixMonth: Date;
+  date: {
+    from: Date;
+    to: Date;
+  };
   token: string;
 }) => {
   const clients = await getAllClients(token!);
@@ -77,8 +80,8 @@ export const getDataForDashboard = async ({
     .filter((i) => i.hasServices);
 
   const invoices = getAllInvoices(token!, {
-    createdDateFrom: format(dateBeforeSixMonth, "yyyy-MM-dd"),
-    createdDateTo: format(new Date(), "yyyy-MM-dd"),
+    createdDateFrom: format(from, "yyyy-MM-dd"),
+    createdDateTo: format(to, "yyyy-MM-dd"),
   }).then((invoices) =>
     invoices.map((invoice) => ({
       ...invoice,
