@@ -7,6 +7,7 @@
   "name": "bfn-invoice-manager",
   "compatibility_date": "2025-04-04",
   "compatibility_flags": ["nodejs_compat"],
+  "routes": [{ "pattern": "bfn-crm.engineersf.dev", "custom_domain": true }],
   "main": "./workers/app.ts",
   "observability": {
     "enabled": true,
