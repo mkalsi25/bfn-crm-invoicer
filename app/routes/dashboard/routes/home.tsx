@@ -13,11 +13,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import type { CardProps, UCRMClient, UCRMInvoice } from "~/types";
 import { InvoiceStatus } from "~/constants";
 import { Badge } from "~/components/ui/badge";
-import {
-  IconCircleCheckFilled,
-  IconCircleXFilled,
-  IconInvoice,
-} from "@tabler/icons-react";
+import { IconCircleCheckFilled, IconCircleXFilled } from "@tabler/icons-react";
 import { DataFrame } from "data-forge";
 export async function loader(args: Route.LoaderArgs) {
   const cf = args.context.get(cf_ctx);
