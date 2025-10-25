@@ -8,13 +8,14 @@ import { getDataForDashboard } from "~/actions/ucrm.server";
 import { cf_ctx } from "~/context";
 import { addMonths } from "date-fns";
 import { Await } from "react-router";
-import { Suspense, useMemo } from "react";
+import { Suspense, useEffect, useMemo } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { CardProps, UCRMClient, UCRMInvoice } from "~/types";
 import { InvoiceStatus } from "~/constants";
 import { Badge } from "~/components/ui/badge";
 import { IconCircleCheckFilled, IconCircleXFilled } from "@tabler/icons-react";
 import { DataFrame } from "data-forge";
+import { useSidebar } from "~/components/ui/sidebar";
 export async function loader(args: Route.LoaderArgs) {
   const cf = args.context.get(cf_ctx);
   const token = cf?.cloudflare.env.UCRM_SECRET_TOKEN;
@@ -46,6 +47,14 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
     pendingAmount,
     groupInvoices,
   } = loaderData;
+
+  const { open, setOpen } = useSidebar();
+
+  useEffect(() => {
+    if (open) {
+      setOpen(false);
+    }
+  }, []);
 
   const currency_formatter = new Intl.NumberFormat("en-ES", {
     style: "currency",
