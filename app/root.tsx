@@ -63,7 +63,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
             src="https://www.befreenetworks.com/logo.png"
             className="size-5! animate-spin rounded-full"
           />
-          <span className="text-base font-semibold">Loading...</span>
+          <span className="text-base font-semibold">Loading....</span>
         </div>
       </ClerkLoading>
       <ClerkLoaded>
