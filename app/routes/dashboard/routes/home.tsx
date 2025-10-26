@@ -5,7 +5,7 @@ import { Fragment } from "react/jsx-runtime";
 import type { Route } from "./+types/home";
 import { SiteHeader } from "~/components/site-header";
 import { getDataForDashboard } from "~/actions/ucrm.server";
-import { cf_ctx } from "~/context";
+import { app_context } from "~/context";
 import { addMonths } from "date-fns";
 import { Await } from "react-router";
 import { Suspense, useEffect, useMemo } from "react";
@@ -16,8 +16,9 @@ import { Badge } from "~/components/ui/badge";
 import { IconCircleCheckFilled, IconCircleXFilled } from "@tabler/icons-react";
 import { DataFrame } from "data-forge";
 import { useSidebar } from "~/components/ui/sidebar";
+import { cn } from "~/lib/utils";
 export async function loader(args: Route.LoaderArgs) {
-  const cf = args.context.get(cf_ctx);
+  const cf = args.context.get(app_context);
   const token = cf?.cloudflare.env.UCRM_SECRET_TOKEN;
   const currentDate = new Date();
   const dateBeforeSixMonth = addMonths(currentDate, -6);
@@ -86,14 +87,22 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
       id: "totalInvoices",
       accessorKey: "totalInvoices",
       header: "Total Invoices",
-      cell: ({ getValue }) => (
-        <Badge variant={"outline"} className="text-muted-foreground px-1.5">
-          <span className="bg-primary/80 border border-primary size-3 inline-flex items-center justify-center text-secondary rounded-full text-[8px]">
-            {getValue<number>()}
-          </span>
-          {getValue<number>() > 1 ? "Invoices" : "Invoice"}
-        </Badge>
-      ),
+      cell: ({ getValue, row }) => {
+        const isCompleted = row.original.status === 3;
+        return (
+          <Badge variant={"outline"} className="text-muted-foreground px-1.5">
+            <span
+              className={cn(
+                "size-3 inline-flex items-center justify-center text-secondary rounded-full text-[8px]",
+                isCompleted ? "bg-green-700" : "bg-red-700"
+              )}
+            >
+              {getValue<number>()}
+            </span>
+            {getValue<number>() > 1 ? "Invoices" : "Invoice"}
+          </Badge>
+        );
+      },
     },
     {
       id: "amountPaid",

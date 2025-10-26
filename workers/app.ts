@@ -1,9 +1,5 @@
-import {
-  createRequestHandler,
-  RouterContextProvider,
-  createContext,
-} from "react-router";
-import { cf_ctx } from "~/context";
+import { createRequestHandler, RouterContextProvider } from "react-router";
+import { app_context } from "~/context";
 import type { CfContext } from "~/types";
 
 declare module "react-router" {
@@ -21,7 +17,7 @@ export default {
   async fetch(request, env, ctx) {
     const routeContext = new RouterContextProvider();
 
-    routeContext.set(cf_ctx, {
+    routeContext.set(app_context, {
       cloudflare: { env, ctx },
     });
 
