@@ -20,11 +20,11 @@ const data = {
       url: "/dashboard",
       icon: IconDashboard,
     },
-    // {
-    //   title: "Invoice",
-    //   url: "/dashboard/invoices",
-    //   icon: IconInvoice,
-    // },
+    {
+      title: "Future Invoices",
+      url: "/dashboard/prediction",
+      icon: IconInvoice,
+    },
     // {
     //   title: "Client",
     //   url: "/dashboard/clients",

@@ -7,6 +7,14 @@ export type CloudflareContent = {
   cloudflare: CfContext;
 };
 
+export type LoaderFnProps = {
+  date: {
+    from: Date;
+    to: Date;
+  };
+  token: string;
+};
+
 export type CardProps = {
   title: string;
   value: Promise<number> | undefined;

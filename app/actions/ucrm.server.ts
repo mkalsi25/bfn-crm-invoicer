@@ -1,7 +1,13 @@
 import { DataFrame } from "data-forge";
-import { format } from "date-fns";
+import { differenceInMonths, format } from "date-fns";
 import { ofetch } from "ofetch";
-import type { UCRMClient, UCRMInvoice, UCRMService } from "~/types";
+import type {
+  LoaderFnProps,
+  UCRMClient,
+  UCRMInvoice,
+  UCRMService,
+  UCRMServicePlan,
+} from "~/types";
 
 export const UCRMHeader = (token: string) => ({
   "X-Auth-App-Key": token,
@@ -45,16 +51,96 @@ export const getAllServices = async (
   });
 };
 
+export const getAllServicePlans = async (
+  token: string,
+  query?: Record<string, string>
+) => {
+  return ucrm<UCRMServicePlan[]>(`/service-plans`, {
+    method: "GET",
+    headers: UCRMHeader(token),
+    query,
+  });
+};
+
+export const getFutureInvoices = async ({
+  token,
+  date: { from, to },
+}: LoaderFnProps) => {
+  const totalmonth = differenceInMonths(to, from);
+
+  const servicesPromise = getAllServices(token!, {
+    status: "1",
+    limit: "399",
+  });
+
+  const clientPromise = getAllClients(token!);
+
+  const activeClients = clientPromise.then((clients) =>
+    servicesPromise.then((services) =>
+      new DataFrame(clients)
+        .select((client) => {
+          return {
+            ...client,
+            hasServices: services.some(
+              (service) => service.clientId === client.id
+            ),
+            activeServices: services.filter(
+              (service) => service.clientId === client.id
+            ),
+          };
+        })
+        .filter((i) => i.hasServices)
+        .toArray()
+    )
+  );
+
+  const expectedRevenue = activeClients.then((clients) =>
+    new DataFrame(clients)
+      .select((client) => {
+        const pricing = new DataFrame(client.activeServices).select((item) => {
+          const billingCycles = Math.floor(totalmonth / item.servicePlanPeriod);
+          return {
+            planId: item.servicePlanId,
+            price: item.servicePlanPrice,
+            period: item.servicePlanPeriod,
+            amount: item.servicePlanPrice * billingCycles,
+            months: billingCycles,
+          };
+        });
+
+        return {
+          name: client.companyName || `${client.firstName} ${client.lastName}`,
+          activeServices: client.activeServices,
+          pricing: pricing.toArray(),
+          amountToPay: pricing.deflate((item) => item.amount).sum(),
+          months: totalmonth,
+        };
+      })
+
+      .toArray()
+  );
+
+  const totalExpectedRevenue = expectedRevenue.then((pricies) =>
+    new DataFrame(pricies).deflate((i) => i.amountToPay).sum()
+  );
+
+  const servicePlans = getAllServicePlans(token!);
+
+  return {
+    activeClients,
+    servicePlans,
+    totalExpectedRevenue,
+    expectedRevenue,
+    noOfClient: activeClients.then((i) => i.length),
+    noOfServicePlan: servicePlans.then((i) => i.length),
+    noOfActiveServices: servicesPromise.then((i) => i.length),
+  };
+};
+
 export const getDataForDashboard = async ({
   date: { from, to },
   token,
-}: {
-  date: {
-    from: Date;
-    to: Date;
-  };
-  token: string;
-}) => {
+}: LoaderFnProps) => {
   const clients = await getAllClients(token!);
 
   const servicesPromise = getAllServices(token!, {

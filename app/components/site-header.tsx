@@ -3,7 +3,13 @@ import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger, useSidebar } from "~/components/ui/sidebar";
 import { cn } from "~/lib/utils";
 
-export function SiteHeader({ title = "Documents" }: { title: string }) {
+export function SiteHeader({
+  title = "Documents",
+  rightSection,
+}: {
+  title: string;
+  rightSection?: React.ReactNode;
+}) {
   const { open } = useSidebar();
   return (
     <header className="flex overflow-clip h-(--header-height) z-50 sticky top-0 bg-white shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
@@ -15,10 +21,13 @@ export function SiteHeader({ title = "Documents" }: { title: string }) {
         />
         <h1 className="text-base font-medium">{title}</h1>
         <div className="ml-auto flex items-center gap-2 relative">
+          {rightSection}
           <div
             className={cn(
-              open ? "translate-x-24 opacity-0" : "translate-x-0 opacity-100",
-              "transition ease-in-out duration-150 absolute right-0"
+              open
+                ? "translate-x-24 opacity-0  absolute right-0"
+                : "translate-x-0 opacity-100",
+              "transition ease-in-out duration-150"
             )}
           >
             <SignedIn>

@@ -177,13 +177,11 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
         title: "Active Customer",
         value: Promise.all([activeClients.length]).then(([clients]) => clients),
         description: "Active Customer with Services",
-        href: "/dashboard/clients",
       },
       {
         title: "Active Services",
         value: noOfServices,
         description: "Overall services for all clients",
-        href: "/dashboard/clients",
       },
     ],
     [activeClients, noOfClient, noOfInvoices, noOfServices]

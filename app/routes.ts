@@ -11,7 +11,7 @@ export default [
   ]),
   layout("./routes/dashboard/layout.tsx", [
     route("dashboard", "./routes/dashboard/routes/home.tsx", { id: "main" }),
-    // route("dashboard/invoices", "./routes/dashboard/routes/invoice.tsx"),
+    route("dashboard/prediction", "./routes/dashboard/routes/predict.tsx"),
     // route("dashboard/clients", "./routes/dashboard/routes/client.tsx"),
   ]),
 ] satisfies RouteConfig;
