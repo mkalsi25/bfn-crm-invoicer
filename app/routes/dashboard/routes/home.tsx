@@ -6,8 +6,8 @@ import type { Route } from "./+types/home";
 import { SiteHeader } from "~/components/site-header";
 import { getDataForDashboard } from "~/actions/ucrm.server";
 import { app_context } from "~/context";
-import { addMonths } from "date-fns";
-import { Await } from "react-router";
+import { addDays, addMonths, parseISO } from "date-fns";
+import { Await, useSearchParams } from "react-router";
 import { Suspense, useEffect, useMemo } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { CardProps, UCRMClient, UCRMInvoice } from "~/types";
@@ -17,17 +17,29 @@ import { IconCircleCheckFilled, IconCircleXFilled } from "@tabler/icons-react";
 import { DataFrame } from "data-forge";
 import { useSidebar } from "~/components/ui/sidebar";
 import { cn } from "~/lib/utils";
+import { DatePickerWithRange } from "~/components/ui/date-range-picker";
 export async function loader(args: Route.LoaderArgs) {
+  const query = new URL(args.request.url).searchParams;
+
+  const dateFrom = query.get("date-from");
+  const dateTo = query.get("date-to");
+
+  const from = dateFrom ? parseISO(dateFrom) : null;
+  const to = dateTo ? parseISO(dateTo) : null;
+
   const cf = args.context.get(app_context);
   const token = cf?.cloudflare.env.UCRM_SECRET_TOKEN;
   const currentDate = new Date();
-  const dateBeforeSixMonth = addMonths(currentDate, -6);
+  const dateBeforeSixMonth = addMonths(currentDate, -2);
+  const date = { from: from || dateBeforeSixMonth, to: to || currentDate };
   return getDataForDashboard({
-    date: {
-      from: dateBeforeSixMonth,
-      to: currentDate,
-    },
+    date,
     token: token!,
+  }).then((data) => {
+    return {
+      ...data,
+      date,
+    };
   });
 }
 
@@ -44,6 +56,7 @@ type DataRecord = Partial<UCRMInvoice> & {
 };
 
 export default function DashboardPage({ loaderData }: Route.ComponentProps) {
+  const [_, setSearchParams] = useSearchParams();
   const {
     invoices,
     noOfClient,
@@ -53,6 +66,7 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
     activeClients,
     pendingAmount,
     groupInvoices,
+    date,
   } = loaderData;
 
   const { open, setOpen } = useSidebar();
@@ -189,7 +203,31 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
 
   return (
     <Fragment>
-      <SiteHeader title="Dashboard" />
+      <SiteHeader
+        title="Dashboard"
+        rightSection={
+          <DatePickerWithRange
+            selectedDate={date}
+            disabledDates={(date) =>
+              date > addDays(new Date(), 3) || date < new Date("1900-01-01")
+            }
+            onSelectValue={(value) => {
+              const from = value?.from;
+              const to = value?.to;
+
+              if (!from || !to) {
+                return;
+              }
+
+              return setSearchParams((searchParams) => {
+                searchParams.set("date-from", from.toISOString());
+                searchParams.set("date-to", to.toISOString());
+                return searchParams;
+              });
+            }}
+          />
+        }
+      />
       <div className="flex flex-1 flex-col">
         <div className="@container/main flex flex-1 flex-col gap-2">
           <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">

@@ -3,7 +3,7 @@
 import * as React from "react";
 import { addDays, format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { type DateRange } from "react-day-picker";
+import { type DateRange, type DayPickerProps } from "react-day-picker";
 
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
@@ -20,11 +20,13 @@ export function DatePickerWithRange({
   disabled,
   className,
   placeholder = "Pick a date",
+  disabledDates,
 }: React.HTMLAttributes<HTMLDivElement> & {
   selectedDate?: DateRange;
   disabled?: boolean;
   onSelectValue: (date: DateRange | undefined) => void;
   placeholder?: string;
+  disabledDates: DayPickerProps["disabled"];
 }) {
   const [date, setDate] = React.useState<DateRange | undefined>(selectedDate);
 
@@ -67,6 +69,7 @@ export function DatePickerWithRange({
               setDate(date);
               onSelectValue(date);
             }}
+            disabled={disabledDates}
             numberOfMonths={1}
           />
         </PopoverContent>

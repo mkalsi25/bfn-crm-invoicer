@@ -2,7 +2,7 @@ import React, { Fragment, Suspense, useEffect, useMemo } from "react";
 import type { Route } from "./+types/predict";
 import { SiteHeader } from "~/components/site-header";
 import { app_context } from "~/context";
-import { addMonths, parseISO } from "date-fns";
+import { addDays, addMonths, parseISO } from "date-fns";
 import { getFutureInvoices } from "~/actions/ucrm.server";
 import type { CardProps } from "~/types";
 import { SectionCards } from "~/components/section-cards";
@@ -34,7 +34,7 @@ export const loader = async (args: Route.LoaderArgs) => {
   const cf = args.context.get(app_context);
   const token = cf?.cloudflare.env.UCRM_SECRET_TOKEN;
   const currentDate = new Date();
-  const dateAfterSixMonth = addMonths(currentDate, 6);
+  const dateAfterSixMonth = addMonths(currentDate, 1);
   const date = { from: from || currentDate, to: to || dateAfterSixMonth };
   return getFutureInvoices({
     date,
@@ -172,6 +172,7 @@ export default function PredictPage({
         rightSection={
           <DatePickerWithRange
             selectedDate={date}
+            disabledDates={(date) => date < addDays(new Date(), -3)}
             onSelectValue={(value) => {
               const from = value?.from;
               const to = value?.to;
