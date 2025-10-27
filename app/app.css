@@ -201,3 +201,7 @@
 .cl-userButtonPopoverActions {
   @apply *:px-2 *:py-3;
 }
+
+.cl-alert {
+  @apply w-11/12! mx-auto! my-2!;
+}
