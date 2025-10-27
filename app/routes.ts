@@ -8,6 +8,7 @@ import {
 export default [
   layout("./routes/non-protected/layout.tsx", [
     index("./routes/non-protected/routes/sign-in.tsx"),
+    route("invitation", "./routes/non-protected/routes/sign-up.tsx"),
   ]),
   layout("./routes/dashboard/layout.tsx", [
     route("dashboard", "./routes/dashboard/routes/home.tsx", { id: "main" }),
