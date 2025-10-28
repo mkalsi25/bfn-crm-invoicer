@@ -124,12 +124,17 @@ export const getFutureInvoices = async ({
     new DataFrame(pricies).deflate((i) => i.amountToPay).sum()
   );
 
+  const totalInvoicesTobeSent = expectedRevenue.then((prices) =>
+    new DataFrame(prices).deflate((i) => i.months).sum()
+  );
+
   const servicePlans = getAllServicePlans(token!);
 
   return {
     activeClients,
     servicePlans,
     totalExpectedRevenue,
+    totalInvoicesTobeSent,
     expectedRevenue,
     noOfClient: activeClients.then((i) => i.length),
     noOfServicePlan: servicePlans.then((i) => i.length),

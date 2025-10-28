@@ -53,6 +53,7 @@ export default function PredictPage({
     noOfClient,
     noOfServicePlan,
     totalExpectedRevenue,
+    totalInvoicesTobeSent,
     date,
     expectedRevenue,
   },
@@ -147,6 +148,11 @@ export default function PredictPage({
         },
       },
       {
+        title: "Number of Invoices to be sent",
+        value: totalInvoicesTobeSent,
+        description: `Total invoices to be sent (from ${format(date.from, "PPP")} to ${format(date.to, "PPP")})`,
+      },
+      {
         title: "Total Service Plans",
         value: noOfServicePlan,
         description:
@@ -157,11 +163,11 @@ export default function PredictPage({
         value: noOfClient,
         description: "Active Customer with Services",
       },
-      {
-        title: "Active Services",
-        value: noOfActiveServices,
-        description: "Overall services for all clients",
-      },
+      // {
+      //   title: "Active Services",
+      //   value: noOfActiveServices,
+      //   description: "Overall services for all clients",
+      // },
     ],
     [noOfClient, noOfActiveServices, noOfServicePlan]
   );
