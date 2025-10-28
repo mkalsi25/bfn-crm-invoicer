@@ -2,7 +2,7 @@ import React, { Fragment, Suspense, useEffect, useMemo } from "react";
 import type { Route } from "./+types/predict";
 import { SiteHeader } from "~/components/site-header";
 import { app_context } from "~/context";
-import { addDays, addMonths, parseISO } from "date-fns";
+import { addDays, addMonths, format, parseISO } from "date-fns";
 import { getFutureInvoices } from "~/actions/ucrm.server";
 import type { CardProps } from "~/types";
 import { SectionCards } from "~/components/section-cards";
@@ -134,9 +134,9 @@ export default function PredictPage({
   const cards = useMemo<CardProps[]>(
     () => [
       {
-        title: "Total Expected Revenue",
+        title: "Revenue Forecast to be Collected",
         value: totalExpectedRevenue,
-        description: "Future six month paid invoices amount",
+        description: `Expected revenue from pending invoices (from ${format(date.from, "PPP")} to ${format(date.to, "PPP")})`,
         // href: "/dashboard/invoices",
         format: {
           locales: "en-ES",
@@ -149,7 +149,8 @@ export default function PredictPage({
       {
         title: "Total Service Plans",
         value: noOfServicePlan,
-        description: "All service plans for customer",
+        description:
+          "BFN has different pricing plans structured around 3, 6, 9, 12 months and as well 6 month hibernations",
       },
       {
         title: "Active Customer",

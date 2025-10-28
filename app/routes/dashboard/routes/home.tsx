@@ -6,7 +6,7 @@ import type { Route } from "./+types/home";
 import { SiteHeader } from "~/components/site-header";
 import { getDataForDashboard } from "~/actions/ucrm.server";
 import { app_context } from "~/context";
-import { addDays, addMonths, parseISO } from "date-fns";
+import { addDays, addMonths, format, parseISO } from "date-fns";
 import { Await, useSearchParams } from "react-router";
 import { Suspense, useEffect, useMemo } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -162,9 +162,9 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
   const cards = useMemo<CardProps[]>(
     () => [
       {
-        title: "Total Revenue",
+        title: "Total Collected Revenue",
         value: totalRevenue,
-        description: "Last six month paid invoices amount",
+        description: `Revenue collected from paid invoices in the from ${format(date.from, "PPP")} to ${format(date.to, "PPP")}`,
         // href: "/dashboard/invoices",
         format: {
           locales: "en-ES",
@@ -175,9 +175,9 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
         },
       },
       {
-        title: "Pending Amount",
+        title: "Revenue Forecast to be Collected",
         value: pendingAmount,
-        description: "Last six month pending invoices amount",
+        description: `Expected revenue from pending invoices (from ${format(date.from, "PPP")} to ${format(date.to, "PPP")})`,
         // href: "/dashboard/invoices",
         format: {
           locales: "en-ES",
@@ -198,7 +198,7 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
         description: "Overall services for all clients",
       },
     ],
-    [activeClients, noOfClient, noOfInvoices, noOfServices]
+    [activeClients, noOfClient, noOfInvoices, noOfServices, date]
   );
 
   return (
