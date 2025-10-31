@@ -7,13 +7,14 @@ import { getFutureInvoices } from "~/actions/ucrm.server";
 import type { CardProps } from "~/types";
 import { SectionCards } from "~/components/section-cards";
 import { DatePickerWithRange } from "~/components/ui/date-range-picker";
-import { Await, useSearchParams } from "react-router";
+import { Await, useRevalidator, useSearchParams } from "react-router";
 import { DataTable } from "~/components/data-table";
 import { IconClockPlay } from "@tabler/icons-react";
 import { Badge } from "~/components/ui/badge";
 import type { ColumnDef } from "@tanstack/react-table";
 import { cn } from "~/lib/utils";
 import { useSidebar } from "~/components/ui/sidebar";
+import { Loader } from "lucide-react";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -59,7 +60,7 @@ export default function PredictPage({
   },
 }: Route.ComponentProps) {
   const [_, setSearchParams] = useSearchParams();
-
+  const revalidator = useRevalidator();
   const { open, setOpen } = useSidebar();
 
   useEffect(() => {
@@ -177,24 +178,33 @@ export default function PredictPage({
       <SiteHeader
         title="Future Invoices"
         rightSection={
-          <DatePickerWithRange
-            selectedDate={date}
-            disabledDates={(date) => date < addDays(new Date(), -3)}
-            onSelectValue={(value) => {
-              const from = value?.from;
-              const to = value?.to;
+          <div className="inline-flex gap-4 items-center">
+            <DatePickerWithRange
+              selectedDate={date}
+              disabledDates={(date) => date < addDays(new Date(), -2)}
+              disabled={revalidator.state === "loading"}
+              onSelectValue={(value) => {
+                const from = value?.from;
+                const to = value?.to;
 
-              if (!from || !to) {
-                return;
-              }
+                if (!from || !to) {
+                  return;
+                }
 
-              return setSearchParams((searchParams) => {
-                searchParams.set("date-from", from.toISOString());
-                searchParams.set("date-to", to.toISOString());
-                return searchParams;
-              });
-            }}
-          />
+                setSearchParams((searchParams) => {
+                  searchParams.set("date-from", from.toISOString());
+                  searchParams.set("date-to", to.toISOString());
+                  return searchParams;
+                });
+
+                revalidator.revalidate();
+              }}
+            />
+
+            {revalidator.state === "loading" && (
+              <Loader className="animate-spin" />
+            )}
+          </div>
         }
       />
       <div className="flex flex-1 flex-col">

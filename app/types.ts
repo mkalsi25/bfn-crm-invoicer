@@ -7,6 +7,15 @@ export type CloudflareContent = {
   cloudflare: CfContext;
 };
 
+export type InvoiceData = {
+  amountPaid: number;
+  amountToPay: number;
+  from: string;
+  to: string;
+  date: string;
+  month: string;
+};
+
 export type LoaderFnProps = {
   date: {
     from: Date;

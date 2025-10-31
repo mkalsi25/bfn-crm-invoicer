@@ -7,7 +7,7 @@ import { SiteHeader } from "~/components/site-header";
 import { getDataForDashboard } from "~/actions/ucrm.server";
 import { app_context } from "~/context";
 import { addDays, addMonths, format, parseISO } from "date-fns";
-import { Await, useSearchParams } from "react-router";
+import { Await, useRevalidator, useSearchParams } from "react-router";
 import { Suspense, useEffect, useMemo } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { CardProps, UCRMClient, UCRMInvoice } from "~/types";
@@ -18,6 +18,7 @@ import { DataFrame } from "data-forge";
 import { useSidebar } from "~/components/ui/sidebar";
 import { cn } from "~/lib/utils";
 import { DatePickerWithRange } from "~/components/ui/date-range-picker";
+import { Loader } from "lucide-react";
 export async function loader(args: Route.LoaderArgs) {
   const query = new URL(args.request.url).searchParams;
 
@@ -57,6 +58,7 @@ type DataRecord = Partial<UCRMInvoice> & {
 
 export default function DashboardPage({ loaderData }: Route.ComponentProps) {
   const [_, setSearchParams] = useSearchParams();
+  const revalidator = useRevalidator();
   const {
     invoices,
     noOfClient,
@@ -206,26 +208,37 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
       <SiteHeader
         title="Dashboard"
         rightSection={
-          <DatePickerWithRange
-            selectedDate={date}
-            disabledDates={(date) =>
-              date > addDays(new Date(), 3) || date < new Date("1900-01-01")
-            }
-            onSelectValue={(value) => {
-              const from = value?.from;
-              const to = value?.to;
-
-              if (!from || !to) {
-                return;
+          <div className="inline-flex gap-4 items-center">
+            <DatePickerWithRange
+              selectedDate={date}
+              disabledDates={(date) =>
+                date > addDays(new Date(), 3) || date < new Date("1900-01-01")
               }
+              disabled={revalidator.state === "loading"}
+              onSelectValue={(value) => {
+                const from = value?.from;
+                const to = value?.to;
 
-              return setSearchParams((searchParams) => {
-                searchParams.set("date-from", from.toISOString());
-                searchParams.set("date-to", to.toISOString());
-                return searchParams;
-              });
-            }}
-          />
+                if (!from || !to) {
+                  return;
+                }
+
+                setSearchParams((searchParams) => {
+                  searchParams.set("date-from", from.toISOString());
+                  searchParams.set("date-to", to.toISOString());
+                  return searchParams;
+                });
+
+                revalidator.revalidate();
+
+                return;
+              }}
+            />
+
+            {revalidator.state === "loading" && (
+              <Loader className="animate-spin" />
+            )}
+          </div>
         }
       />
       <div className="flex flex-1 flex-col">

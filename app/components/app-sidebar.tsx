@@ -1,5 +1,9 @@
 import * as React from "react";
-import { IconDashboard, IconInvoice, IconUser } from "@tabler/icons-react";
+import {
+  IconChartAreaLineFilled,
+  IconDashboard,
+  IconInvoice,
+} from "@tabler/icons-react";
 
 import { NavMain } from "~/components/nav-main";
 import { NavUser } from "~/components/nav-user";
@@ -25,11 +29,11 @@ const data = {
       url: "/dashboard/prediction",
       icon: IconInvoice,
     },
-    // {
-    //   title: "Client",
-    //   url: "/dashboard/clients",
-    //   icon: IconUser,
-    // },
+    {
+      title: "Forecast",
+      url: "/dashboard/forecast",
+      icon: IconChartAreaLineFilled,
+    },
   ],
 };
 

@@ -1,7 +1,15 @@
 import { DataFrame } from "data-forge";
-import { differenceInMonths, format } from "date-fns";
+import {
+  addMonths,
+  differenceInMonths,
+  format,
+  isFuture,
+  isToday,
+  parseISO,
+} from "date-fns";
 import { ofetch } from "ofetch";
 import type {
+  InvoiceData,
   LoaderFnProps,
   UCRMClient,
   UCRMInvoice,
@@ -105,6 +113,8 @@ export const getFutureInvoices = async ({
             period: item.servicePlanPeriod,
             amount: item.servicePlanPrice * billingCycles,
             months: billingCycles,
+            billingCycles,
+            totalMonthsCovered: billingCycles * item.servicePlanPeriod,
           };
         });
 
@@ -222,3 +232,94 @@ export const getDataForDashboard = async ({
     activeClients,
   };
 };
+
+export const getForecast = async (props: LoaderFnProps) => {
+  const invoicesData: InvoiceData[] = [];
+
+  let invoicesTobeSent = 0;
+
+  const months = getMonthlyDates(props.date.from, props.date.to);
+
+  for (const { date, month, iso, isFutureDate } of months) {
+    const createdDateFrom = iso;
+    const parseFrom = parseISO(iso);
+    const parseTo = addMonths(parseFrom, 1);
+    const createdDateTo = format(parseTo, "yyyy-MM-dd");
+
+    if (isFutureDate) {
+      const { expectedRevenue, totalInvoicesTobeSent } =
+        await getFutureInvoices({
+          token: props.token!,
+          date: {
+            from: parseFrom,
+            to: parseTo,
+          },
+        });
+
+      const invoices = await expectedRevenue;
+
+      const df = new DataFrame(invoices);
+
+      const data = {
+        amountPaid: 0,
+        amountToPay: df.deflate((item) => item.amountToPay).sum(),
+        from: createdDateFrom,
+        to: createdDateTo,
+        date,
+        month,
+      };
+
+      invoicesData.push(data);
+
+      invoicesTobeSent = invoicesTobeSent + (await totalInvoicesTobeSent);
+    } else {
+      const invoices = await getAllInvoices(props.token!, {
+        createdDateFrom,
+        createdDateTo,
+      });
+
+      const df = new DataFrame(invoices);
+
+      invoicesData.push({
+        amountPaid: df.deflate((item) => item.amountPaid).sum(),
+        amountToPay: df.deflate((item) => item.amountToPay).sum(),
+        from: createdDateFrom,
+        to: createdDateTo,
+        date,
+        month,
+      });
+    }
+  }
+
+  const totalExpectedRevenue = new DataFrame(invoicesData)
+    .deflate((i) => i.amountToPay)
+    .sum();
+
+  return {
+    months,
+    invoicesData,
+    totalExpectedRevenue,
+    date: props.date,
+    invoicesTobeSent: Promise.all([invoicesTobeSent]).then((v) => v[0]),
+  };
+};
+
+// Utils
+
+function getMonthlyDates(startDate: Date, endDate: Date) {
+  const result = [];
+  let current = new Date(startDate);
+  const end = new Date(endDate);
+
+  while (current <= end) {
+    result.push({
+      date: format(current, "MMM dd, yyyy"),
+      month: format(current, "MMM yyyy"),
+      iso: format(current, "yyyy-MM-dd"),
+      isFutureDate: isFuture(addMonths(current, 1)),
+    });
+    current = addMonths(current, 1);
+  }
+
+  return result;
+}

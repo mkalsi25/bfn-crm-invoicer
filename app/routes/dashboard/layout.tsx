@@ -25,7 +25,7 @@ export default function DashboardLayout() {
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="sidebar" />
+      <AppSidebar variant="sidebar" collapsible="icon" />
       <SidebarInset>
         <Outlet />
       </SidebarInset>
